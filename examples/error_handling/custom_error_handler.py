@@ -1,8 +1,14 @@
 from flask import Flask
 from flask_restx import Resource, Api
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 api = Api(app)
+
+app.config['ERROR_INCLUDE_MESSAGE'] = False
+#app.config['ERROR_404_HELP'] = False
+#app.config['ERROR_INCLUDE_MESSAGE'] = False
+#app.config['RESTX_ERROR_404_HELP'] = False
 
 
 # you have to define your own Exception as flask_restx doesn't provide them.
@@ -25,11 +31,14 @@ class NoResultFound(Exception):
     def __init__(self, name_item_not_found):
         self.item_not_found = name_item_not_found
 
+class URLNotFound(NotFound):
+    pass
+
 # now define your own errorhandler function with custom handling
 @api.errorhandler(RootException)
 def handle_root_exception(error):
     '''Return a custom message and 400 status code'''
-    return {'message': 'What you want'}, 400       
+    return {'message': 'What you want'}, 400
 
 @api.errorhandler(CustomException)
 def handle_custom_exception(error):
@@ -49,20 +58,24 @@ def handle_fake_exception_with_header(error):
 @api.errorhandler(NoResultFound)
 def handle_no_result_exception(error):
     '''Return a custom not found error message and 404 status code'''
-    return {'message': "your request was not found: '%s'" % error.item_not_found }, 404        
-    
+    return {'message': "your request was not found: '%s'" % error.item_not_found }, 404
+
+
+@api.errorhandler(NotFound)
+def handle_wrong_api_URL(error):
+    return {'message': "your request was not found: '%s'" % error }, 404
 
 # now your routes
 @api.route('/hello')
 class HelloWorld(Resource):
     def get(self):
-        ### somthing wrong
+        ### something wrong
         raise RootException
 
 @api.route('/does_it_exist/<string:file_name>')
 class HelloWorld(Resource):
     def get(self, file_name):
-        if file_name != 'yes':                
+        if file_name != 'yes':
             raise NoResultFound(file_name)
         else:
             return { 'file_found': file_name }
