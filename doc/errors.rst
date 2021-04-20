@@ -136,7 +136,7 @@ The :meth:`@api.errorhandler <Api.errorhandler>` decorator
 allows you to register a specific handler for a given exception (or any exceptions inherited from it), in the same manner
 that you can do with Flask/Blueprint :meth:`@errorhandler <flask:flask.Flask.errorhandler>` decorator.
 
-You can see a full custom error handling example `here </examples/error_handling/custom_error_handler.py>`.
+You can see a full custom error handling example `here </examples/error_handling/custom_error_handler.py>`_.
 
 .. code-block:: python
 
